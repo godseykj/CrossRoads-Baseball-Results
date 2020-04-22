@@ -1,0 +1,10 @@
+---
+title: "Crossroads Baseball Project Results."
+author: "Levi Cain, Kara Godsey, and Dr. Ryan Johnson"
+date: "4/22/2020"
+output:
+  rmdformats::readthedown:
+    #highlight: kate
+---
+
+Results will be posted here
