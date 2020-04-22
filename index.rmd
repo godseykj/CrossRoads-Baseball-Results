@@ -1,7 +1,7 @@
 ---
 title: "Crossroads Baseball Project Results."
 author: "Levi Cain, Kara Godsey, and Dr. Ryan Johnson"
-date: "4/22/2020"
+date: "4-22-2020"
 output:
   rmdformats::readthedown:
     #highlight: kate
@@ -13,6 +13,7 @@ suppressWarnings(library(knitr))
 suppressWarnings(library(rmdformats))
 suppressWarnings(library(kableExtra))
 suppressWarnings(library(ggplot2))
+suppressWarnings(library(DT))
 
 ## Global options
 options(max.print="75")
@@ -651,6 +652,8 @@ for (g in 1:length(f)){
 
 ---
 
+---
+
 # Upcoming Games
 
 ```{r}
@@ -695,3 +698,11 @@ update_web("INWU", "GRC", "GRC")
 ```
 
 ---
+
+---
+
+# 2019 Batting Stats
+
+```{r all_hitters_table}
+datatable(Best_Players, options = list(pageLength = 5))
+```
