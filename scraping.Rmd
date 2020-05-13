@@ -13,6 +13,7 @@ suppressWarnings(library(tidyr))
 suppressWarnings(library(knitr))
 suppressWarnings(library(stringr))
 suppressWarnings(library(DT))
+suppressWarnings(library(DataCombine))
 
 ## Global options
 options(max.print="75")
@@ -40,14 +41,51 @@ hitting <- url %>%
 ```{r tableclean}
 #remove empty index column
 hitting <- hitting[ -c(1) ]
+#split sb and sbattempts
+hitting <- separate(hitting, c("SB-ATT"), c("SB", "SBA"))
 #split games started and games played
 hitting <- separate(hitting, c("GP-GS"), c("GP", "GS"))
+#separate player from team
 hitting <- separate(hitting, c("Player"), c("Player", "Team"), sep = "[(]")
+#remove extra parenthesis from team
 hitting$Team = substr(hitting$Team,1,nchar(hitting$Team)-1)
-
-
+#for consistency with capitalization
 hitting[[1]] <- str_to_title(hitting[[1]])
+#Making sure all names are separated by commas
+hitting[[1]] <- str_replace(hitting[[1]], ", ", " ")
+hitting[[1]] <- str_replace(hitting[[1]], " ", ", ")
+```
 
+```{r team names}
+og_teams <- unique(hitting[[2]])
+og_teams <- str_sort(og_teams, decreasing = FALSE)
+teams <- str_replace(og_teams, "BUFFALO", "BUF")
+hitting[[2]] <- str_replace(hitting[[2]], og_teams, teams)
+```
+
+```{r stats1}
+x <- hitting
+#Caught Stealing
+#x$CS <- x$SBA - x$SB
+#Singles
+x$`1B` <- x$H - x$`2B` - x$`3B` - x$HR
+#Runs Created
+x$RC <- round((x$H + x$BB)*x$TB/(x$AB + x$BB),2)
+#OPS
+x$OPS <- format(x$`OB%` + x$`SLG%`, nsmall = 3)
+#Total Average
+#x$TA <- round((x$TB + x$BB + x$HBP + x$SB)/(x$AB - x$H + x$SH + x$SF + x$CS + x$GDP), 3)
+#Plate Appearances
+x$PA <- x$AB+x$BB+x$HBP+x$SF
+#Batting Average on Balls in Play
+x$BABIP <- format(round((x$H - x$HR)/(x$AB - x$SO - x$HR + x$SF),3), nsmall = 3)
+#Base Stealing Runs
+#x$Steal_Runs <- round(((x$H + x$BB - x$CS)*(x$TB + (0.7 * x$SB)))/(x$AB + x$BB + x$CS),2)
+#formatting
+x$AVG <- format(x$AVG, nsmall = 3)
+x$`OB%` <- format(x$`OB%`, nsmall = 3)
+x$`SLG%` <- format(x$`SLG%`, nsmall = 3)
+hitting <- x
 ```
 
 ```{r basic stats, echo=FALSE}
