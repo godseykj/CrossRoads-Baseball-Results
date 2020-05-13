@@ -1,3 +1,3 @@
-# CrossRoads-Baseball-Results
+# MAC Softball Stats
 
-**Results page:** [Results](https://godseykj.github.io/CrossRoads-Baseball-Results/)
+**Results page:** [Results](https://macsoftballstats.com/)

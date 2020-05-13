@@ -1,0 +1,55 @@
+---
+title: "scraping"
+author: "Kara Godsey"
+date: "5/12/2020"
+output: 
+  html_document
+---
+
+```{r setup, echo=FALSE, cache=FALSE}
+suppressWarnings(library(rvest))
+suppressWarnings(library(xml2))
+suppressWarnings(library(tidyr))
+suppressWarnings(library(knitr))
+suppressWarnings(library(stringr))
+suppressWarnings(library(DT))
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=FALSE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+```
+
+# Basic Conference Stats
+
+```{r retrieval-functions}
+url <- "https://getsomemaction.com/stats.aspx?path=softball&year=2019&conf=true"
+hitting <- url %>%
+    read_html() %>%
+    html_nodes("table") %>%
+    .[[4]] %>%
+    html_table(fill = TRUE)
+```
+
+```{r tableclean}
+#remove empty index column
+hitting <- hitting[ -c(1) ]
+#split games started and games played
+hitting <- separate(hitting, c("GP-GS"), c("GP", "GS"))
+hitting <- separate(hitting, c("Player"), c("Player", "Team"), sep = "[(]")
+hitting$Team = substr(hitting$Team,1,nchar(hitting$Team)-1)
+
+
+hitting[[1]] <- str_to_title(hitting[[1]])
+
+```
+
+```{r basic stats, echo=FALSE}
+datatable(hitting, options = list(pageLength = 10))
+```
