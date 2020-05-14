@@ -83,11 +83,58 @@ x$BABIP <- format(round((x$H - x$HR)/(x$AB - x$SO - x$HR + x$SF),3), nsmall = 3)
 #x$Steal_Runs <- round(((x$H + x$BB - x$CS)*(x$TB + (0.7 * x$SB)))/(x$AB + x$BB + x$CS),2)
 #formatting
 x$AVG <- format(x$AVG, nsmall = 3)
-x$`OB%` <- format(x$`OB%`, nsmall = 3)
-x$`SLG%` <- format(x$`SLG%`, nsmall = 3)
+x$OBP <- format(x$`OB%`, nsmall = 3)
+x$SLG <- format(x$`SLG%`, nsmall = 3)
+x$XBH <- x$`2B` + x$`3B` + x$HR  
 hitting <- x
 ```
 
-```{r basic stats, echo=FALSE}
-datatable(hitting, options = list(pageLength = 10))
+```{r reordering columns}
+column_order <- c("Player", "Team", "GP", "GS", "PA", "AB", "R", "TB", "H", "XBH", "1B", "2B", "3B", "HR", "RBI", "BB", "HBP","SO", "AVG", "OBP", "SLG", "OPS", "BABIP", "GDP", "SF", "SH", "SB", "SBA", "RC")
+hitting <- hitting[, column_order]
 ```
+
+```{r tooltips for table}
+tooltips = htmltools::withTags(table(
+  class = 'display',
+  thead(
+    tr(
+      th('', ''),
+      th('Player', title = 'Player'),
+      th('Team', title = 'Team'),
+      th('GP', title = 'Games Played'),
+      th('GS', title = 'Games Started'),
+      th('PA', title = 'Plate Appearances'),
+      th('AB', title = 'At Bats'),
+      th('R', title = 'Runs'),
+      th('TB', title = 'Total Bases'),
+      th('H', title = 'Hits'),
+      th('XBH', title = 'Extra-Base Hits'),
+      th('1B', title = 'Singles'),
+      th('2B', title = 'Doubles'),
+      th('3B', title = 'Triples'),
+      th('HR', title = 'Home Runs'),
+      th('RBI', title = 'Runs Batted In'),
+      th('BB', title = 'Base on Balls'),
+      th('HBP', title = 'Hit By Pitch'),
+      th('SO', title = 'Strikeouts'),
+      th('AVG', title = 'Batting Average'),
+      th('OBP', title = 'On-Base Percetange'),
+      th('SLG', title = 'Slugging Percentage'),
+      th('OPS', title = 'On-Base Plus Slugging'),
+      th('BABIP', title = 'Batting Average on Balls In Play'),
+      th('GDP', title = 'Grounded into Double Play'),
+      th('SF', title = 'Sacrifice Flies'),
+      th('SH', title = 'Sacrifice Hits'),
+      th('SB', title = 'Stolen Bases'),
+      th('SBA', title = 'Stolen Base Attempts'),
+      th('RC', title = 'Runs Created')
+    )
+  )
+))
+```
+
+```{r basic stats, echo=FALSE}
+datatable(hitting, container = tooltips, options = list(pageLength = 10), )
+```
+
