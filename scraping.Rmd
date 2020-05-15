@@ -135,6 +135,6 @@ tooltips = htmltools::withTags(table(
 ```
 
 ```{r basic stats, echo=FALSE}
-datatable(hitting, container = tooltips, options = list(pageLength = 10), )
+datatable(hitting, container = tooltips, options = list(pageLength = 10, scrollX='400px'))
 ```
 

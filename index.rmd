@@ -30,7 +30,7 @@ opts_knit$set(width=75)
 
 # Overview
 
-This site will contain advanced statistics for all the softball teams competing in the Mid-American Conference. All data present is from 2019.
+This site will contain advanced statistics for all the softball teams competing in the Mid-American Conference. All data present is from 2019 conference games only.
 
 ---
 
