@@ -7,7 +7,7 @@ output:
     #highlight: kate
 ---
 
-```{r setup, echo=FALSE, cache=FALSE}
+```{r setup, echo=FALSE, cache=FALSE, message=FALSE}
 suppressWarnings(library(rvest))
 suppressWarnings(library(xml2))
 suppressWarnings(library(knitr))
@@ -146,5 +146,5 @@ tooltips = htmltools::withTags(table(
 ```
 
 ```{r basic stats, echo=FALSE}
-datatable(hitting, container = tooltips, options = list(pageLength = 10, scrollX='400px'))
+datatable(hitting, container = tooltips, options = list(pageLength = 10, scrollX='400px', scrollY='400px'))
 ```
