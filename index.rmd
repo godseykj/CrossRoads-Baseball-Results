@@ -148,3 +148,28 @@ tooltips = htmltools::withTags(table(
 ```{r basic stats, echo=FALSE}
 datatable(hitting, container = tooltips, options = list(pageLength = 10, scrollX='400px', scrollY='400px'))
 ```
+
+---
+
+---
+
+# Park Factor
+
+```{r webpull2}
+url <- "https://getsomemaction.com/stats.aspx?path=softball&year=2019&conf=true"
+schedule <- c()
+for(i in 1:11){
+  schedule[[i]] <- url %>%
+    read_html() %>%
+    html_nodes("table") %>%
+    .[[54+i]] %>%
+    html_table(fill = TRUE)
+}
+#schedules[[1]] <- url %>%
+    #read_html() %>%
+    #html_nodes("table") %>%
+    #.[[55]] %>%
+    #html_table(fill = TRUE)
+team_names <- c("AKRON", "BSU", "BGSU", "BUFF", "CMU", "KSU", "MIAMI", "NIU", "OHIO", "UT", "WMU")
+names(schedule) <- team_names
+```
