@@ -1,9 +1,10 @@
 ---
 title: "MAC Softball Stats"
 author: "Kara Godsey"
-date: "5/12/2020"
+date: "`r Sys.Date()`"
 output:
-  html_document
+  rmdformats::html_docco:
+    #highlight: kate
 ---
 
 ```{r setup, echo=FALSE, cache=FALSE}
@@ -11,10 +12,11 @@ suppressWarnings(library(rvest))
 suppressWarnings(library(xml2))
 suppressWarnings(library(knitr))
 suppressWarnings(library(rmdformats))
-suppressWarnings(library(kableExtra))
 suppressWarnings(library(ggplot2))
+suppressWarnings(library(tidyr))
+suppressWarnings(library(stringr))
 suppressWarnings(library(DT))
-suppressWarnings(library(ggrepel))
+suppressWarnings(library(DataCombine))
 
 ## Global options
 options(max.print="75")
@@ -35,3 +37,114 @@ This site will contain advanced statistics for all the softball teams competing 
 ---
 
 ---
+
+# Basic Conference Stats
+
+```{r retrieval-functions}
+url <- "https://getsomemaction.com/stats.aspx?path=softball&year=2019&conf=true"
+hitting <- url %>%
+    read_html() %>%
+    html_nodes("table") %>%
+    .[[4]] %>%
+    html_table(fill = TRUE)
+```
+
+```{r tableclean}
+#remove empty index column
+hitting <- hitting[ -c(1) ]
+#split sb and sbattempts
+hitting <- separate(hitting, c("SB-ATT"), c("SB", "SBA"))
+#split games started and games played
+hitting <- separate(hitting, c("GP-GS"), c("GP", "GS"))
+#separate player from team
+hitting <- separate(hitting, c("Player"), c("Player", "Team"), sep = "[(]")
+#remove extra parenthesis from team
+hitting$Team = substr(hitting$Team,1,nchar(hitting$Team)-1)
+#for consistency with capitalization
+hitting[[1]] <- str_to_title(hitting[[1]])
+#Making sure all names are separated by commas
+hitting[[1]] <- str_replace(hitting[[1]], ", ", " ")
+hitting[[1]] <- str_replace(hitting[[1]], " ", ", ")
+```
+
+```{r team names}
+og_teams <- unique(hitting[[2]])
+og_teams <- str_sort(og_teams, decreasing = FALSE)
+teams <- str_replace(og_teams, "BUFFALO", "BUF")
+hitting[[2]] <- str_replace(hitting[[2]], og_teams, teams)
+```
+
+```{r stats1}
+x <- hitting
+#Caught Stealing
+#x$CS <- x$SBA - x$SB
+#Singles
+x$`1B` <- x$H - x$`2B` - x$`3B` - x$HR
+#Runs Created
+x$RC <- round((x$H + x$BB)*x$TB/(x$AB + x$BB),2)
+#OPS
+x$OPS <- format(x$`OB%` + x$`SLG%`, nsmall = 3)
+#Total Average
+#x$TA <- round((x$TB + x$BB + x$HBP + x$SB)/(x$AB - x$H + x$SH + x$SF + x$CS + x$GDP), 3)
+#Plate Appearances
+x$PA <- x$AB+x$BB+x$HBP+x$SF
+#Batting Average on Balls in Play
+x$BABIP <- format(round((x$H - x$HR)/(x$AB - x$SO - x$HR + x$SF),3), nsmall = 3)
+#Base Stealing Runs
+#x$Steal_Runs <- round(((x$H + x$BB - x$CS)*(x$TB + (0.7 * x$SB)))/(x$AB + x$BB + x$CS),2)
+#formatting
+x$AVG <- format(x$AVG, nsmall = 3)
+x$OBP <- format(x$`OB%`, nsmall = 3)
+x$SLG <- format(x$`SLG%`, nsmall = 3)
+x$XBH <- x$`2B` + x$`3B` + x$HR  
+hitting <- x
+```
+
+```{r reordering columns}
+column_order <- c("Player", "Team", "GP", "GS", "PA", "AB", "R", "TB", "H", "XBH", "1B", "2B", "3B", "HR", "RBI", "BB", "HBP","SO", "AVG", "OBP", "SLG", "OPS", "BABIP", "GDP", "SF", "SH", "SB", "SBA", "RC")
+hitting <- hitting[, column_order]
+```
+
+```{r tooltips for table}
+tooltips = htmltools::withTags(table(
+  class = 'display',
+  thead(
+    tr(
+      th('', ''),
+      th('Player', title = 'Player'),
+      th('Team', title = 'Team'),
+      th('GP', title = 'Games Played'),
+      th('GS', title = 'Games Started'),
+      th('PA', title = 'Plate Appearances'),
+      th('AB', title = 'At Bats'),
+      th('R', title = 'Runs'),
+      th('TB', title = 'Total Bases'),
+      th('H', title = 'Hits'),
+      th('XBH', title = 'Extra-Base Hits'),
+      th('1B', title = 'Singles'),
+      th('2B', title = 'Doubles'),
+      th('3B', title = 'Triples'),
+      th('HR', title = 'Home Runs'),
+      th('RBI', title = 'Runs Batted In'),
+      th('BB', title = 'Base on Balls'),
+      th('HBP', title = 'Hit By Pitch'),
+      th('SO', title = 'Strikeouts'),
+      th('AVG', title = 'Batting Average'),
+      th('OBP', title = 'On-Base Percetange'),
+      th('SLG', title = 'Slugging Percentage'),
+      th('OPS', title = 'On-Base Plus Slugging'),
+      th('BABIP', title = 'Batting Average on Balls In Play'),
+      th('GDP', title = 'Grounded into Double Play'),
+      th('SF', title = 'Sacrifice Flies'),
+      th('SH', title = 'Sacrifice Hits'),
+      th('SB', title = 'Stolen Bases'),
+      th('SBA', title = 'Stolen Base Attempts'),
+      th('RC', title = 'Runs Created')
+    )
+  )
+))
+```
+
+```{r basic stats, echo=FALSE}
+datatable(hitting, container = tooltips, options = list(pageLength = 10, scrollX='400px'))
+```
