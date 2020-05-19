@@ -165,11 +165,35 @@ for(i in 1:11){
     .[[54+i]] %>%
     html_table(fill = TRUE)
 }
-#schedules[[1]] <- url %>%
-    #read_html() %>%
-    #html_nodes("table") %>%
-    #.[[55]] %>%
-    #html_table(fill = TRUE)
+
 team_names <- c("AKRON", "BSU", "BGSU", "BUFF", "CMU", "KSU", "MIAMI", "NIU", "OHIO", "UT", "WMU")
 names(schedule) <- team_names
+```
+
+```{r schedule_function}
+pare <- function(y){
+  x <- schedule[[y]]
+  x <- separate(x, c("Result"), c("Result", "Score"), sep = " ")
+  x <- separate(x, c("Score"), c(y, "Opp"), sep = "-")
+  x$Location <- NA
+  #x$Location[substr(x$Opponent,1,3)=="at"]<-"H"
+  #for(j in 1:nrow(x)){x[j,"Location"] <- c("H")}
+  for(j in 1:nrow(x)){ifelse(substr(x[j,"Opponent"],1,4)=="* at", x[j, "Location"] <- "A", x[j, "Location"] <- "H")}
+  x$Opponent = ifelse(substr(x$Opponent,1,4)=="* at",substr(x$Opponent,6,nchar(x$Opponent)),substr(x$Opponent,4,nchar(x$Opponent)))
+  x <- x[c(1,6,2,3,4,5)]
+  schedule[[y]] <- x
+}
+
+```
+
+```{r lapply_schedules}
+schedule <- team_names %>%
+  lapply(pare)
+names(schedule) <- team_names
+```
+
+Akron's 2019 conference schedule:
+
+```{r print_sched}
+datatable(schedule[["AKRON"]])
 ```
